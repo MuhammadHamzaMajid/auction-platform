@@ -1,0 +1,16 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Build Frontend",
+            "command": "npm run build",
+            "args": [],
+            "group": "build",
+            "isBackground": false,
+            "problemMatcher": [
+                "$tsc"
+            ]
+        }
+    ]
+    // ...existing code...
+}
