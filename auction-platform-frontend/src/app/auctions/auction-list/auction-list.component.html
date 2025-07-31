@@ -1,0 +1,70 @@
+<div class="auctions-container">
+  <div class="auctions-header">
+    <h1>Active Auctions</h1>
+    @if (isSeller) {
+      <a routerLink="/auctions/new" class="create-auction-button">
+        Create New Auction
+      </a>
+    }
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading auctions...</p>
+    </div>
+  } @else if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  } @else if (auctions.length === 0) {
+    <div class="no-auctions">
+      <p>No active auctions found.</p>
+    </div>
+  } @else {
+    <div class="auctions-grid">
+      @for (auction of auctions; track auction.id) {
+        <div class="auction-card" [class.ended]="auction.status === 'ended'">
+          <div class="auction-header">
+            <h3>{{ auction.title }}</h3>
+            <span class="status-badge" [class]="auction.status">
+              {{ auction.status }}
+            </span>
+          </div>
+          
+          <p class="description">{{ auction.description }}</p>
+          
+          <div class="auction-info">
+            <div class="price">
+              <span class="label">Current Price:</span>
+              <span class="value">{{ formatPrice(auction.currentPrice) }}</span>
+            </div>
+            
+            <div class="time-left">
+              <span class="label">Time Left:</span>
+              <span class="value">{{ getTimeLeft(auction.endTime) }}</span>
+            </div>
+            
+            <div class="seller">
+              <span class="label">Seller:</span>
+              <span class="value">{{ auction.seller.username }}</span>
+            </div>
+          </div>
+
+          <div class="auction-footer">
+            <button 
+              [routerLink]="['/auctions', auction.id]"
+              class="view-button"
+              [disabled]="!isLoggedIn"
+            >
+              View Auction
+            </button>
+            @if (!isLoggedIn) {
+              <p class="login-prompt">Please log in to bid</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

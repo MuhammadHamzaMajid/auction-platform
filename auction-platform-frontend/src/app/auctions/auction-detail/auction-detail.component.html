@@ -1,0 +1,109 @@
+<div class="auction-detail-container">
+  @if (isLoading) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading auction details...</p>
+    </div>
+  } @else if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  } @else if (auction) {
+    <div class="auction-detail">
+      <div class="auction-header">
+        <h1>{{ auction.title }}</h1>
+        <span class="status-badge" [class]="auction.status">
+          {{ auction.status }}
+        </span>
+      </div>
+
+      <div class="auction-info">
+        <div class="main-info">
+          <div class="info-group">
+            <label>Current Price</label>
+            <span class="price">{{ formatPrice(auction.currentPrice) }}</span>
+          </div>
+          <div class="info-group">
+            <label>Time Left</label>
+            <span class="time-left">{{ getTimeLeft() }}</span>
+          </div>
+          <div class="info-group">
+            <label>Seller</label>
+            <span>{{ auction.seller.username }}</span>
+          </div>
+        </div>
+
+        <div class="description">
+          <h3>Description</h3>
+          <p>{{ auction.description }}</p>
+        </div>
+
+        @if (canBid()) {
+          <div class="bid-section">
+            <h3>Place a Bid</h3>
+            <form [formGroup]="bidForm" (ngSubmit)="onSubmitBid()" class="bid-form">
+              <div class="form-group">
+                <label for="amount">Bid Amount (USD)</label>
+                <input
+                  type="number"
+                  id="amount"
+                  formControlName="amount"
+                  [min]="auction.currentPrice + 1"
+                  [placeholder]="'Minimum bid: ' + formatPrice(auction.currentPrice + 1)"
+                  [class.error]="bidForm.get('amount')?.invalid && bidForm.get('amount')?.touched"
+                >
+                @if (bidForm.get('amount')?.invalid && bidForm.get('amount')?.touched) {
+                  <div class="error-message">
+                    @if (bidForm.get('amount')?.errors?.['required']) {
+                      <span>Bid amount is required</span>
+                    }
+                    @if (bidForm.get('amount')?.errors?.['min']) {
+                      <span>Bid must be higher than {{ formatPrice(auction.currentPrice) }}</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              @if (bidError) {
+                <div class="error-message">{{ bidError }}</div>
+              }
+
+              <button type="submit" [disabled]="bidForm.invalid" class="place-bid-button">
+                Place Bid
+              </button>
+            </form>
+          </div>
+        } @else if (!currentUser) {
+          <div class="login-prompt">
+            <p>Please log in to place bids</p>
+          </div>
+        } @else if (!isSpectator) {
+          <button (click)="spectateAuction()" class="spectate-btn">
+            Spectate Auction
+          </button>
+        }
+
+        <div *ngIf="isSpectator" class="spectator-info">
+          <p>You are spectating this auction. Bidding is disabled.</p>
+        </div>
+
+        <div class="bid-history">
+          <h3>Bid History</h3>
+          @if (auction.bids.length === 0) {
+            <p class="no-bids">No bids yet</p>
+          } @else {
+            <div class="bid-list">
+              @for (bid of auction.bids; track bid.id) {
+                <div class="bid-item">
+                  <span class="bidder">{{ bid.bidder.username }}</span>
+                  <span class="amount">{{ formatPrice(bid.amount) }}</span>
+                  <span class="time">{{ formatDate(bid.createdAt) }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,36 @@
+<div class="profile-container">
+  <h1>User Profile</h1>
+  <div *ngIf="isLoading">Loading profile...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+  <div *ngIf="user">
+    <div class="profile-info">
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Role:</strong> {{ user.role }}</p>
+      <p><strong>Balance:</strong> {{ user.balance | currency:'USD' }}</p>
+      <p><strong>Status:</strong> <span [class.frozen]="user.isFrozen">{{ user.isFrozen ? 'Frozen' : 'Active' }}</span></p>
+    </div>
+    <div class="purchase-history">
+      <h2>Purchase History</h2>
+      <table *ngIf="user.purchaseHistory?.length; else noHistory">
+        <thead>
+          <tr>
+            <th>Auction ID</th>
+            <th>Amount</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of user.purchaseHistory">
+            <td>{{ item.auctionId }}</td>
+            <td>{{ item.amount | currency:'USD' }}</td>
+            <td>{{ item.date | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noHistory>
+        <p>No purchases yet.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
